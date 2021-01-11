@@ -10,9 +10,9 @@ add_library(v8Inspector STATIC
         src/v8inspector_client.cpp src/v8inspector_client.h
         )
 
-add_subdirectory(deps/AndriodWebsocket)
+add_dependencies(v8Inspector AndriodWebsocket)
 
-target_link_libraries(v8Inspector PUBLIC AndroidWebsocket)
+target_link_libraries(v8Inspector PUBLIC AndriodWebsocket)
 
 if(DEFINED V8_INCLUDE_DIR)
     target_include_directories(v8Inspector PUBLIC ${V8_INCLUDE_DIR})
