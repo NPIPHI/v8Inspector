@@ -12,9 +12,11 @@ V8InspectorClientImpl::V8InspectorClientImpl(v8::Isolate *isolate,
     this->wait_on_message = std::move(wait_on_message);
     this->isolate = isolate;
     this->context = context;
+
     channel = std::make_unique<V8InspectorChannelImp>(isolate, std::move(on_response));
     inspector = v8_inspector::V8Inspector::create(isolate, this);
     session = inspector->connect(kContextGroupId, channel.get(), v8_inspector::StringView());
+
     auto local_context = context->Get(isolate);
     local_context->SetAlignedPointerInEmbedderData(1, this);
     v8_inspector::StringView contextName = convertToStringView("inspector");

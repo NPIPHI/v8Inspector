@@ -8,7 +8,7 @@ Inspector::Inspector(v8::Isolate *isolate, v8::Persistent<v8::Context> *context,
     websocket_server = std::make_unique<Websocket_server>();
     inspector_client = std::make_unique<V8InspectorClientImpl>(isolate, context,
                                                                [&](std::string_view msg){send_message(msg);},
-                                                               [&](){on_message(websocket_server->get_message_blocking().view()); return true;},
+                                                               [&]{on_message(websocket_server->get_message_blocking().view()); return true;},
                                                                std::move(pump_message_loop));
 }
 
@@ -17,12 +17,6 @@ void Inspector::on_message(std::string_view message) {
     v8::Context::Scope context_scope(local_context);
     v8_inspector::StringView protocolMessage = convertToStringView(message);
     inspector_client->dispatchProtocolMessage(protocolMessage);
-//    v8::Local<v8::Object> jsonObject = parseJson(local_context, message);
-//    if (!jsonObject.IsEmpty()) {
-//        std::string method = getPropertyFromJson(local_context, jsonObject, "method");
-//        if (method == "Runtime.runIfWaitingForDebugger") {
-//        }
-//    }
     //TODO find why response not sent until another message is received
 }
 

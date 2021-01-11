@@ -11,11 +11,36 @@
 
 class Inspector {
 public:
+    /*
+     * construct the v8 inspector
+     * requires that locks be set before the constructor is called
+     */
     Inspector(v8::Isolate *isolate, v8::Persistent<v8::Context> *context,
               std::function<bool()> pump_message_loop);
+    /*
+     * sets the context that the inspector views
+     * removes the old context from the view
+     * requires locks to be set
+     */
     void set_context(v8::Persistent<v8::Context> * context);
+
+    /*
+     * starts the inspector listening on the port specified
+     * to use chrome remote debugging, port forwarding needs to be enabled
+     * with adb, port forwarding is set up with the command:
+     * "adb forward tcp:<pc-port> tcp:<phone-port>"
+     */
     void start_agent(int port);
+
+    /*
+     * polls the message queue for new inspector messages
+     * any new commands are run on the thread that calls this function
+     */
     void poll_messages();
+
+    /*
+     * returns weather the inspector is paused on a breakpoint
+     */
     bool paused() const;
 private:
     void on_message(std::string_view message);

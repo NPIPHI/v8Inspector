@@ -10,7 +10,7 @@ add_library(v8Inspector STATIC
         src/v8inspector_client.cpp src/v8inspector_client.h
         )
 
-add_subdirectory(deps)
+add_subdirectory(deps/AndriodWebsocket)
 
 target_link_libraries(v8Inspector PUBLIC AndroidWebsocket)
 
