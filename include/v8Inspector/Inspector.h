@@ -2,8 +2,10 @@
 #include <vector>
 #include <string>
 #include "../../src/v8inspector_client.h"
-#include <AndroidWebsocket/Message.h>
-#include <AndroidWebsocket/Websocket_server.h>
+#include "../../src/SafeQueue.h"
+
+#include <websocketpp/server.hpp>
+#include <websocketpp/config/asio_no_tls.hpp>
 
 #ifndef V8_INSPECTOR_EXAMPLE_INSPECTOR_H
 #define V8_INSPECTOR_EXAMPLE_INSPECTOR_H
@@ -17,6 +19,9 @@ public:
      */
     Inspector(v8::Isolate *isolate, v8::Persistent<v8::Context> *context,
               std::function<bool()> pump_message_loop);
+
+    ~Inspector() = default;
+
     /*
      * sets the context that the inspector views
      * removes the old context from the view
@@ -33,6 +38,11 @@ public:
     void start_agent(int port);
 
     /*
+     * returns weather the inspector is currently connected to chrome dev tools
+     */
+    [[nodiscard]] bool connected() const;
+
+    /*
      * polls the message queue for new inspector messages
      * any new commands are run on the thread that calls this function
      */
@@ -43,15 +53,17 @@ public:
      */
     bool paused() const;
 private:
+    using server = websocketpp::server<websocketpp::config::asio>;
     void on_message(std::string_view message);
-    void send_message(message msg);
-    bool compileScript(const v8::Local<v8::String> &source, const std::string &filename, v8::Local<v8::Script> &script, const v8::TryCatch &tryCatch);
+    void send_message(std::string_view message);
+    std::function<void(websocketpp::connection_hdl)> http_handler(int port, std::shared_ptr<server> server);
 
     v8::Isolate * isolate;
-    std::unique_ptr<Websocket_server> websocket_server;
+    std::shared_ptr<server> websocket_server;
+    websocketpp::connection_hdl connection_hdl;
+    SafeQueue<std::string> pending_messages;
     v8::Persistent<v8::Context> * context;
     std::unique_ptr<V8InspectorClientImpl> inspector_client;
-    std::vector<std::string> scripts = {};
 };
 
 
