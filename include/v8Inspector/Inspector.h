@@ -15,7 +15,6 @@ class Inspector {
 public:
     /*
      * construct the v8 inspector
-     * requires that locks be set before the constructor is called
      */
     Inspector(v8::Isolate *isolate, v8::Persistent<v8::Context> *context,
               std::function<bool()> pump_message_loop);
@@ -25,7 +24,6 @@ public:
     /*
      * sets the context that the inspector views
      * removes the old context from the view
-     * requires locks to be set
      */
     void set_context(v8::Persistent<v8::Context> * context);
 

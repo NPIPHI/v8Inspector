@@ -13,6 +13,10 @@ using msg_ptr = websocketpp::config::asio_client::message_type::ptr;
 
 Inspector::Inspector(v8::Isolate *isolate, v8::Persistent<v8::Context> *context,
                      std::function<bool()> pump_message_loop) {
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolate_scope(isolate);
+    v8::HandleScope handle_scope(isolate);
+
     this->isolate = isolate;
     this->context = context;
     websocket_server = std::make_shared<server>();
@@ -59,6 +63,10 @@ bool Inspector::paused() const {
 }
 
 void Inspector::set_context(v8::Persistent<v8::Context> * context) {
+    v8::Locker locker(isolate);
+    v8::Isolate::Scope isolate_scope(isolate);
+    v8::HandleScope handle_scope(isolate);
+
     this->context = context;
     inspector_client->set_context(context);
 }
